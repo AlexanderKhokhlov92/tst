@@ -1,24 +1,9 @@
-const express = require("express");
 const TelegramBot = require("node-telegram-bot-api");
 
-const app = express();
-const token = "7521542463:AAEDti3y-zujYBzko8bNRC7zI8q1BeILWRM"; // Читаем токен из переменной окружения
-const bot = new TelegramBot(token, { polling: false });
+const token = "7521542463:AAEDti3y-zujYBzko8bNRC7zI8q1BeILWRM";
+const bot = new TelegramBot(token, { polling: true });
 
-// Устанавливаем webhook URL
-const WEBHOOK_URL = process.env.WEBHOOK_URL; // Читаем вебхук URL из переменной окружения
-bot.setWebHook(WEBHOOK_URL);
-
-// Middleware для обработки JSON
-app.use(express.json());
-
-// Обрабатываем вебхуки
-app.post("/api/bot", (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
-
-// Команда /start для тестирования
+// Команда /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const options = {
@@ -26,8 +11,8 @@ bot.onText(/\/start/, (msg) => {
       inline_keyboard: [
         [
           {
-            text: "Открыть магазин",
-            web_app: { url: "https://gameshop-pi-blush.vercel.app/" },
+            text: "Открыть приложение",
+            web_app: { url: "https://gameshop-pi-blush.vercel.app/" }, // Используем web_app
           },
         ],
       ],
@@ -41,4 +26,7 @@ bot.onText(/\/start/, (msg) => {
   );
 });
 
-module.exports = app; // Экспортируем express приложение
+// Обработка ошибок
+bot.on("polling_error", (error) => {
+  console.error(`Polling error: ${error.code}`);
+});
